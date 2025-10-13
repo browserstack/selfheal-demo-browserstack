@@ -1,147 +1,66 @@
-# Self-Heal Demo (TestNG) for Web (BrowserStack)
+# Self-Healing AI Agent Demo for BrowserStack Automate
 
-## Demo Website
-Try the self-heal demo web app here:  
-**[https://browserstack.github.io/selfheal-demo-app/](https://browserstack.github.io/selfheal-demo-app/)**
+## Table of Contents
+- [What is BrowserStack Self-Healing AI Agent?](#what-is-browserstack-self-healing-ai-agent)
+- [Introduction](#introduction)
+- [How to Run](#how-to-run)
+- [Additional Resources](#additional-resources)
 
-## What Does This Repo Do?
-This repository demonstrates BrowserStack's self-healing feature for web automation using TestNG. It contains two main demo scripts:
+---
 
-- **BStackDemoTest.java**: Runs a standard automation flow on the demo website.
-- **BStackSelfHealDemoTest.java**: Runs the same flow, but toggles the "Self-Heal" mode on the website to simulate locator changes.
+## What is BrowserStack Self-Healing AI Agent?
 
-## Why Two Scripts, and Why Are They Identical?
-The self-heal feature is designed to work **without any changes to your test scripts**. In real-world scenarios, your UI changes over time, but your automation scripts remain the same. Self-heal is valuable because it allows your tests to continue working even when locators change, without script updates.
+BrowserStack’s Self-Healing AI Agent automatically detects and repairs broken selectors during test execution. When the application’s UI changes (for example, a button ID changes from `#submit` to `#submit-btn`), traditional tests fail with NoSuchElementException errors. The Self-Healing Agent dynamically identifies these selector failures, finds the correct element in real time, and allows the test to continue, thereby, reducing manual maintenance and improving build stability.
 
-- **BStackDemoTest.java**: Baseline test, runs with the default UI (no locator changes).
-- **BStackSelfHealDemoTest.java**: Runs the same steps, but enables the toggle to simulate locator changes.
+It works on the principle that the test script remains unchanged while DOM changes lead to selector failures. Therefore, the agent utilises past successful run as context to heal broken selectors during test execution.
 
-**The scripts are intentionally identical** (except for the toggle action) to show that self-heal works by adapting to UI changes, not by changing your test code.
+---
 
-## Why a Toggle Button?
-In production, UI changes happen over time. For demo purposes, the website includes a toggle button to instantly simulate locator changes (IDs, XPaths, etc.). This allows you to:
-- See how your tests behave when locators change, **without modifying your scripts**.
-- Demonstrate self-heal: with the toggle ON and `selfHeal: true`, tests pass; with the toggle ON and `selfHeal: false`, tests fail.
+## Introduction
 
-## How It Works
-1. **Base Flow:**
-   - Runs the automation script against the demo website with standard locators (no changes).
-   - Serves as a reference for normal automation behavior.
-2. **Self-Heal Flow:**
-   - The script toggles the self-heal mode on the website, which changes element locators (IDs, XPaths, etc.).
-   - When `selfHeal: true` is set in `browserstack.yml`, BrowserStack's self-heal feature will attempt to find the correct elements even if locators have changed.
-   - When `selfHeal: false`, the same script will fail at steps where locators have changed.
+This repository demonstrates BrowserStack's Self-Healing AI Agent for web automation using TestNG and BrowserStack Java SDK. It contains two test scripts:
 
-## How to Compare
-- Run your test suite twice:
-  1. With `selfHeal: false` in `browserstack.yml` (expect failures when locators change).
-  2. With `selfHeal: true` in `browserstack.yml` (expect tests to pass as self-heal recovers from locator changes).
-- Compare the results and logs to see the impact of self-healing.
+- **BStackDemoTest.java**: Runs a standard automation flow (control test - should always pass)
+- **BStackSelfHealDemoTest.java**: Runs the same flow with "Self-Heal Mode" enabled on the demo website to simulate selector failures (demonstrates healing in action) due to DOM changes.
 
-## About the Self-Heal Feature
-BrowserStack's self-heal feature automatically detects and recovers from locator changes in your web app's UI during automated tests. If a locator fails (e.g., due to a UI update), self-heal attempts to find the correct element using alternative strategies, allowing your tests to continue without manual intervention. This reduces test flakiness and maintenance effort, especially in agile environments with frequent UI changes.
+Both tests run on the demo website: **[https://browserstack.github.io/selfheal-demo-app/](https://browserstack.github.io/selfheal-demo-app/)**
 
-To enable self-healing, set `selfHeal: true` in your `browserstack.yml` configuration file.
+---
 
-**Example browserstack.yml snippet:**
-```yaml
-selfHeal: true
-```
+## How to Run
 
-## Running the Tests
+### Prerequisites
+1. Install Java and Maven, if not already installed. Add Java to PATH environment variable.
+2. Verify installation: `java -version`, `mvn -version`
+3. Move to respective git branch: "testng-automate" for web, "testng-appium-app" for native apps
 
-### Using Maven
+### Setup
+1. Clone the repository
+2. Update BrowserStack `username` and `accesskey` in the `browserstack.yml` file. Ensure AI is enabled in your BrowserStack Account.
+3. Install dependencies: `mvn compile`
 
-#### Run sample build
+### Demo Part 1: Without Self-Healing (See Tests Fail)
 
-- Clone the repository
-- Replace YOUR_USERNAME and YOUR_ACCESS_KEY with your BrowserStack access credentials in browserstack.yml.
-- Install dependencies `mvn compile`
-- To run the test suite having cross-platform with parallelization, run `mvn test -P sample-test`
-- To run the `selfheal` test suite having cross-platform with parallelization, run `mvn test -P sample-selfheal-test`
+1. Ensure `selfHeal: false` in `browserstack.yml`
+2. Run the tests:
+   - `mvn test -P sample-test` → **Expected: Tests PASS** (no selector changes)
+   - `mvn test -P sample-selfheal-test` → **Expected: Tests FAIL** with `NoSuchElementException` (website simulates selector changes)
 
-Understand how many parallel sessions you need by using our [Parallel Test Calculator](https://www.browserstack.com/automate/parallel-calculator?ref=github)
+### Demo Part 2: With Self-Healing (See Tests Auto-Fix with Self-Healing AI Agent)
 
-#### Integrate your test suite
+1. Enable self-healing:
+   - Set `selfHeal: true` in `browserstack.yml` file
+2. Re-run the failing test:
+   - `mvn test -P sample-selfheal-test` → **Expected: Tests PASS** (AI agent automatically heals broken selectors)
 
-This repository uses the BrowserStack SDK to run tests on BrowserStack. Follow the steps below to install the SDK in your test suite and run tests on BrowserStack:
+### View Results
 
-* Create sample browserstack.yml file with the browserstack related capabilities with your [BrowserStack Username and Access Key](https://www.browserstack.com/accounts/settings) and place it in your root folder.
-* Add maven dependency of browserstack-java-sdk in your pom.xml file
-```sh
-<dependency>
-    <groupId>com.browserstack</groupId>
-    <artifactId>browserstack-java-sdk</artifactId>
-    <version>LATEST</version>
-    <scope>compile</scope>
-</dependency>
-```
-* Modify your build plugin to run tests by adding argLine `-javaagent:${com.browserstack:browserstack-java-sdk:jar}` and `maven-dependency-plugin` for resolving dependencies in the profiles `sample-test` and `sample-selfheal-test`.
-```
-            <plugin>
-               <artifactId>maven-dependency-plugin</artifactId>
-                 <executions>
-                   <execution>
-                     <id>getClasspathFilenames</id>
-                       <goals>
-                         <goal>properties</goal>
-                       </goals>
-                   </execution>
-                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M5</version>
-                <configuration>
-                    <suiteXmlFiles>
-                        <suiteXmlFile>config/sample-selfheal-test.testng.xml</suiteXmlFile>
-                    </suiteXmlFiles>
-                    <argLine>
-                        -javaagent:${com.browserstack:browserstack-java-sdk:jar}
-                    </argLine>
-                </configuration>
-            </plugin>
-```
-* Install dependencies `mvn compile`
+- View healed selectors and test results on the [BrowserStack Automate Dashboard](https://automate.browserstack.com/overview?tab=all). The dashboard shows which selectors broke and what the AI agent replaced them with.
 
-### Using Gradle
+---
 
-#### Prerequisites
-- If using Gradle, Java v9+ is required.
+## Additional Resources
 
-#### Run sample build
-
-- Clone the repository
-- Install dependencies `gradle build`
-- To run the test suite having cross-platform with parallelization, run `gradle sampleTest`
-- To run the `selfheal` test suite having cross-platform with parallelization, run `gradle sampleSelfHealTest`
-
-Understand how many parallel sessions you need by using our [Parallel Test Calculator](https://www.browserstack.com/automate/parallel-calculator?ref=github)
-
-#### Integrate your test suite
-
-This repository uses the BrowserStack SDK to run tests on BrowserStack. Follow the steps below to install the SDK in your test suite and run tests on BrowserStack:
-
-* Following are the changes required in `gradle.build` -
-    * Add `compileOnly 'com.browserstack:browserstack-java-sdk:latest.release'` in dependencies
-    * Fetch Artifact Information and add `jvmArgs` property in tasks *SampleTest* and *SampleSelfHealTest* :
-  ```
-  def browserstackSDKArtifact = configurations.compileClasspath.resolvedConfiguration.resolvedArtifacts.find { it.name == 'browserstack-java-sdk' }
-  
-  task sampleTest(type: Test) {
-    useTestNG() {
-      dependsOn cleanTest
-      useDefaultListeners = true
-      suites "config/sample-test.testng.xml"
-      jvmArgs "-javaagent:${browserstackSDKArtifact.file}"
-    }
-  }
-  ```
-
-* Install dependencies `gradle build`
-
-## Notes
-- You can view your test results on the [BrowserStack Automate dashboard](https://www.browserstack.com/automate)
-- The self-heal toggle in the demo website is for demonstration purposes to simulate locator changes.
-- Both scripts are intentionally similar to highlight the effect of self-healing with and without the feature enabled.
+- [BrowserStack Automate Dashboard](https://automate.browserstack.com/overview?tab=all) - View test results and healed selectors
+- [Self-Healing Documentation](https://www.browserstack.com/docs/automate/selenium/self-healing?fw-lang=java) - Learn more about how self-healing works
+---
