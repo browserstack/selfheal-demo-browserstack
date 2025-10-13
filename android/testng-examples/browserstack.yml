@@ -11,9 +11,9 @@ accessKey: BROWSERSTACK_ACCESS_KEY
 # ======================
 # The following capabilities are used to set up reporting on BrowserStack:
 # Set 'projectName' to the name of your project. Example, Marketing Website
-projectName: BrowserStack Samples
+projectName: BrowserStack Self-Heal Sample Project
 # Set `buildName` as the name of the job / testsuite being run
-buildName: browserstack build
+buildName: browserstack self-heal sample build native app
 # `buildIdentifier` is a unique id to differentiate every execution that gets appended to
 # buildName. Choose your buildIdentifier format from the available expressions:
 # ${BUILD_NUMBER} (Default): Generates an incremental counter with every execution
@@ -26,8 +26,8 @@ framework: testng
 
 source: testng:appium-sample-sdk:v1.1
 
-app: ./BaseApp.apk
-# app: ./SelfHealApp.apk # For testing with the Self Heal App
+# app: ./BaseApp.apk # for testing without self heal
+app: ./SelfHealApp.apk # For testing with the Self Heal App
 
 # =======================================
 # Platforms (Browsers / Devices to test)
@@ -39,14 +39,14 @@ platforms:
   - deviceName: Samsung Galaxy S22 Ultra
     osVersion: 12.0
     platformName: android
-  - deviceName: Samsung Galaxy S21
-    osVersion: 11.0
-    platformName: android
-  - deviceName: Google Pixel 6 Pro
-    osVersion: 12.0
-    platformName: android
+#   - deviceName: Samsung Galaxy S21
+#     osVersion: 11.0
+#     platformName: android
+#   - deviceName: Google Pixel 6 Pro
+#     osVersion: 12.0
+#     platformName: android
 
-# =======================
+# # =======================
 # Parallels per Platform
 # =======================
 # The number of parallel threads to be used for each platform set.
