@@ -10,9 +10,9 @@
 
 ## What is BrowserStack Self-Healing AI Agent?
 
-BrowserStack’s Self-Healing AI Agent automatically detects and repairs broken selectors during test execution. When the application’s UI changes (for example, a button ID changes from `#submit` to `#submit-btn`), traditional tests fail with NoSuchElementException errors. The Self-Healing Agent dynamically identifies these selector failures, finds the correct element in real time, and allows the test to continue, thereby, reducing manual maintenance and improving build stability.
+BrowserStack’s Self-Healing AI Agent diagnoses automation failures such as broken selectors due to DOM shifts and automatically recovers tests without masking genuine product bugs. When the application’s DOM shifts (for example, a button ID changes from `#submit` to `#submit-btn`), traditional tests fail with NoSuchElementException errors.  
 
-It works on the principle that the test script remains unchanged while DOM changes lead to selector failures. Therefore, the agent utilises past successful run as context to heal broken selectors during test execution.
+The Self-Healing Agent dynamically identifies these selector failures, uses contextual signals from past successful run to find the correct element in real time, and allows the test to continue, thereby, reducing manual maintenance and improving build stability.
 
 ---
 
@@ -20,10 +20,10 @@ It works on the principle that the test script remains unchanged while DOM chang
 
 This repository demonstrates BrowserStack's Self-Healing AI Agent for web automation using TestNG and BrowserStack Java SDK. It contains two test scripts:
 
-- **BStackDemoTest.java**: Runs a standard automation flow (control test - should always pass)
-- **BStackSelfHealDemoTest.java**: Runs the same flow with "Self-Heal Mode" enabled on the demo website to simulate selector failures (demonstrates healing in action) due to DOM changes.
+- **BStackDemoTest.java**: Runs a standard automation flow (tests should pass and serve as the baseline).
+- **BStackSelfHealDemoTest.java**: Runs the same flow with "Self-Heal Mode" enabled. Simulates selector failures due to DOM shifts.
 
-Both tests run on the demo website: **[https://browserstack.github.io/selfheal-demo-app/](https://browserstack.github.io/selfheal-demo-app/)**
+Tests run on the demo website: **[https://browserstack.github.io/selfheal-demo-app/](https://browserstack.github.io/selfheal-demo-app/)**
 
 ---
 
@@ -39,17 +39,20 @@ Both tests run on the demo website: **[https://browserstack.github.io/selfheal-d
 2. Update BrowserStack `username` and `accesskey` in the `browserstack.yml` file. Ensure AI is enabled in your BrowserStack Account.
 3. Install dependencies: `mvn compile`
 
-### Demo Part 1: Without Self-Healing (See Tests Fail)
+### Demo Part 1: Without Self-Healing (Tests Fail due to DOM shift & selector failures)
 
 1. Ensure `selfHeal: false` in `browserstack.yml`
 2. Run the tests:
-   - `mvn test -P sample-test` → **Expected: Tests PASS** (no selector changes)
-   - `mvn test -P sample-selfheal-test` → **Expected: Tests FAIL** with `NoSuchElementException` (website simulates selector changes)
+   - `mvn test -P sample-test` → **Expected: Tests PASS** (Serves as baseline)
+   - `mvn test -P sample-selfheal-test` → **Expected: Tests FAIL** with `NoSuchElementException` (website simulates DOM shift & selector changes)
 
-### Demo Part 2: With Self-Healing (See Tests Auto-Fix with Self-Healing AI Agent)
+### Demo Part 2: With Self-Healing (Tests Pass due to Self-Healing AI Agent)
 
 1. Enable self-healing:
    - Set `selfHeal: true` in `browserstack.yml` file
+2. Run the test once so Agent captures success context:
+   - `mvn test -P sample-test` ->  **Expected: Tests PASS** 
+   - Note: The Agent needs to learn from a successful test run before it can heal the test.
 2. Re-run the failing test:
    - `mvn test -P sample-selfheal-test` → **Expected: Tests PASS** (AI agent automatically heals broken selectors)
 
